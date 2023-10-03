@@ -1,13 +1,13 @@
-import { gql } from 'apollo-server-express';
-const typeDefs = gql`
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const apollo_server_express_1 = require("apollo-server-express");
+const typeDefs = (0, apollo_server_express_1.gql) `
   type User {
     id: ID!
     username: String!
     email: String!
-    # password: String!
+    password: String!
     posts: [Post!]!
-    resetToken: String
-    resetTokenExpiry: String
   }
   type Post {
     id: ID!
@@ -30,7 +30,6 @@ const typeDefs = gql`
     comment: Comment!
   }
   type AuthPayload {
-    status: Int!
     accessToken: String
     refreshToken: String
     user: User
@@ -56,10 +55,6 @@ const typeDefs = gql`
     reply: Reply
     message:String
   }
-  type PasswordResetResponse {
-    status: Int
-    message: String
-  }
   type Query {
     user(id: ID!): User
     users: [User!]!
@@ -79,23 +74,6 @@ const typeDefs = gql`
     createPost(title: String!, content: String!): createPostReq
     createComment(text: String!, postId: ID!): createCommentReq
     createReply(text: String!, commentId: ID!): createReplyReq
-    
-    deletePost(id: ID!): String
-    deleteComment(id: ID!): String
-    deleteReply(id: ID!): String
-
-    requestPasswordReset(email: String!): PasswordResetResponse
-    resetPassword(email: String!, token: String!, newPassword: String!): PasswordResetResponse
-    forgetPassword(email: String!): String
   }
 `;
-export default typeDefs;
-
-// updatePost(id: ID!, title: String, content: String): createPostReq
-//     deletePost(id: ID!): String
-//     updateComment(id: ID!, text: String): createCommentReq
-//     deleteComment(id: ID!): String
-//     updateReply(id: ID!, text: String): createReplyReq
-//     deleteReply(id: ID!): String
-// forgetPassword(email: String!): AuthPayload # This mutation should send an email with a reset link
-// forgetPassword(email: String!): PasswordResetResponse
+exports.default = typeDefs;
