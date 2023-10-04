@@ -227,61 +227,89 @@ const resolvers = {
     },
     signup: async (parent: any, args: SignupInterface): Promise<any> => {
       try {
-
-        const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,12}$/; // Allows letters, numbers, and underscores, 3 to 12 characters
-        const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
-        const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,15}$/; // Requires at least one lowercase letter, one uppercase letter, one digit, and allows special characters, 8 to 15 characters
-
+        const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,12}$/;
+        const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/; // Minimum two characters after the dot
+        const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,15}$/;
+    
         const { username, email, password } = args;
-
+    
         // Validate if username, email, and password are provided
         if (!username.trim() || !email.trim() || !password.trim()) {
           const missingFields = [];
           if (!username.trim()) missingFields.push('Username');
           if (!email.trim()) missingFields.push('Email');
           if (!password.trim()) missingFields.push('Password');
-
+    
           const errorMessage =
             missingFields.length === 1
               ? `${missingFields[0]} is required`
               : `${missingFields.join(', ')} are required`;
-
+    
           throw new UserInputError(errorMessage);
         }
-
-        // Validate username
+    
+        // Validate username length
+        if (username.length < 3) {
+          throw new UserInputError('Username must be at least 3 characters');
+        }
+        if (username.length > 12) {
+          throw new UserInputError('Username must be less than 12 characters');
+        }
+    
+        // Validate username format
         if (!USERNAME_REGEX.test(username)) {
           throw new UserInputError('Invalid username');
         }
+    
         // Validate email
         if (!EMAIL_REGEX.test(email)) {
           throw new UserInputError('Invalid email address');
         }
-        // Validate password
+    
+        // Validate password length
+        if (password.length < 8) {
+          throw new UserInputError('Password must be at least 8 characters');
+        }
+        if (password.length > 15) {
+          throw new UserInputError('Password must be less than 15 characters');
+        }
+    
+        // Validate password format
         if (!PASSWORD_REGEX.test(password)) {
           throw new UserInputError('Invalid password');
         }
-
+    
         // Hash the password before storing it in the database
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+    
         // Check if a user with the same username or email already exists
         const existingUser = await User.findOne({
           where: {
             [Op.or]: [{ username }, { email }],
           },
         });
+    
         if (existingUser) {
-          const error = new UserInputError('User already exists', {
-            invalidArgs: ['username', 'email'],
+          const takenFields = [];
+          if (existingUser.username === username) takenFields.push('Username');
+          if (existingUser.email === email) takenFields.push('Email');
+    
+          const errorMessage =
+            takenFields.length === 1
+              ? `${takenFields[0]} already taken`
+              : `${takenFields.join(' and ')} already exist`;
+    
+          throw new UserInputError(errorMessage, {
+            invalidArgs: takenFields,
           });
-          throw error;
         }
+    
         const newUser = await User.create({
           username,
           email,
           password: hashedPassword, // Store the hashed password
         });
+    
         return {
           message: 'Signup successful',
           user: newUser,
@@ -290,7 +318,7 @@ const resolvers = {
         return {
           status: 409,
           message: error.message,
-        }
+        };
       }
     },
     deleteUser: async (parent: any, args: deleteInterface): Promise<string> => {
