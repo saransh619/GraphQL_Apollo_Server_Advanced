@@ -1,23 +1,11 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../Database/sequelizeConnection';
-import Post from './post';
 
-interface UserAttributes {
-  id?: number;
-  username: string;
-  email: string;
-  password: string;
-  resetToken: string | null; // Allow null for cases where no reset token is set
-  resetTokenExpiry: Date | null; // Allow null for cases where no reset token expiry is set
-}
-
-class User extends Model<UserAttributes> {
-  id!: number;
-  username!: string;
-  email!: string;
-  password!: string;
-  resetToken!: string | null;
-  resetTokenExpiry!: Date | null;
+class User extends Model {
+  public id!: number;
+  public username!: string;
+  public email!: string;
+  public password!: string;
 }
 
 User.init(
@@ -40,14 +28,6 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    resetToken: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    resetTokenExpiry: {
-      type: DataTypes.DATE,
-      allowNull: true,
     },
   },
   {

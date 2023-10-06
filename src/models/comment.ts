@@ -2,9 +2,13 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../Database/sequelizeConnection';
 import User from './user';
 import Post from './post';
-import Reply from './reply';
 
-class Comment extends Model {}
+class Comment extends Model {
+  public id!: number;
+  public text!: string;
+  public postId!: number;
+  public userId!: number;
+}
 
 Comment.init(
   {
@@ -14,7 +18,15 @@ Comment.init(
       primaryKey: true,
     },
     text: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    postId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },
@@ -24,13 +36,14 @@ Comment.init(
   }
 );
 
-Comment.belongsTo(User,{
-  foreignKey: "userId",
-  as: "user",
+Comment.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user',
 });
-Comment.belongsTo(Post,{
-  foreignKey: "postId",
-  as: "post",
+
+Comment.belongsTo(Post, {
+  foreignKey: 'postId',
+  as: 'post',
 });
 
 export default Comment;

@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
+
 const {
   DB_USER,
   DB_PASSWORD,
@@ -8,6 +9,7 @@ const {
   DB_PORT,
   DB_DIALECT = 'postgres',
 } = process.env;
+
 export default {
   development: {
     username: DB_USER,

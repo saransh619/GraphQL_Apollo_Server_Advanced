@@ -2,8 +2,15 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../Database/sequelizeConnection';
 import User from './user';
 
+class Post extends Model {
+  public id!: number;
+  public title!: string;
+  public content!: string;
+  public userId!: number;
 
-class Post extends Model {}
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 Post.init(
   {
@@ -17,13 +24,13 @@ Post.init(
       allowNull: false,
     },
     content: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
-    userId:{
+    userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
     sequelize,
@@ -31,9 +38,9 @@ Post.init(
   }
 );
 
-Post.belongsTo(User,{
-  foreignKey: "userId",
-  as: "user",
-})
+Post.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user',
+});
 
 export default Post;
